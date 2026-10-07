@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -8,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+from features.feature_engineering import add_engineered_features
 
 def encode_target(y: pd.Series, mapping: dict | None = None) -> pd.Series:
     """Convert a binary target into 0/1 values."""
@@ -120,7 +120,13 @@ def run_pipeline(
     print(f"Original dataset shape: {df.shape}")
 
     df = clean_column_names(df)
-    target_column = target_column.strip().lower()
+    
+    # Apply feature engineering before splitting the dataset.
+    df = add_engineered_features(df)
+
+    print(f"After feature engineering: {df.shape}")
+
+    target_column = target_column.strip().lower()  
 
     if drop_columns:
         df = df.drop(columns=[c.lower() for c in drop_columns], errors="ignore")
